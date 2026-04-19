@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Wrist Fracture AI – Detection & Classification</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="logo-dot"></div>
+    <div>
+      <h1>Wrist Fracture AI</h1>
+      <p class="subtitle">Two-stage YOLO + EfficientNet-B5 · Occult / Simple / Comminuted</p>
+    </div>
+  </div>
+  <div class="legend">
+    {% for i, name in class_names.items() %}
+    <span class="chip" style="--c: {{ class_colors[i] }}">
+      <i></i>{{ name }}
+    </span>
+    {% endfor %}
+  </div>
+</header>
+
+<main class="grid">
+  <!-- ================= LEFT: IMAGE ================= -->
+  <section class="pane pane-left">
+    <div class="pane-head">
+      <h2>Input X-Ray</h2>
+      <div class="pane-actions">
+        <button id="btn-sample" class="btn ghost" type="button">Try sample</button>
+        <button id="btn-clear" class="btn ghost" type="button" disabled>Clear</button>
+        <label class="btn primary">
+          Choose file
+          <input id="file-input" type="file" accept="image/*" hidden />
+        </label>
+      </div>
+    </div>
+
+    <div id="drop-zone" class="drop-zone" tabindex="0" aria-label="Paste, drop, or click to upload an X-ray">
+      <div class="drop-empty">
+        <div class="drop-icon">⊕</div>
+        <p class="drop-title">Drop, paste, or upload a wrist X-ray</p>
+        <p class="drop-sub">PNG / JPG · paste with <kbd>Ctrl</kbd>+<kbd>V</kbd> · drag-and-drop · or click</p>
+      </div>
+      <div id="canvas-wrap" class="canvas-wrap" hidden>
+        <img id="preview" alt="" />
+        <canvas id="overlay"></canvas>
+        <div id="img-spinner" class="img-spinner" hidden>
+          <div class="ring"></div>
+          <p>analyzing…</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="status" id="status">
+      <span class="dot"></span>
+      <span id="status-text">Ready.</span>
+    </div>
+  </section>
+
+  <!-- ================= RIGHT: RESULTS ================= -->
+  <section class="pane pane-right">
+    <div class="pane-head">
+      <h2>Predictions</h2>
+      <div id="summary" class="summary muted">awaiting image…</div>
+    </div>
+
+    <div id="results" class="results">
+      <div class="placeholder">
+        <div class="placeholder-icon">◎</div>
+        <p>Upload an X-ray to see detected fracture regions and type predictions.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<template id="detection-card-template">
+  <div class="card">
+    <div class="card-head">
+      <div class="badge" data-role="badge">
+        <span class="badge-dot" data-role="badge-dot"></span>
+        <span data-role="badge-name"></span>
+      </div>
+      <div class="card-meta">
+        <span data-role="idx"></span>
+        <span class="sep">·</span>
+        <span>det <span data-role="det-conf"></span></span>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="bar-row" data-role="bar-row"></div>
+      <div class="bbox muted" data-role="bbox"></div>
+    </div>
+  </div>
+</template>
+
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

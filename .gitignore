@@ -1,0 +1,38 @@
+__pycache__/
+*.pyc
+*.pyo
+.Python
+.venv/
+venv/
+
+# model weights — provided by the user, too large for git
+models/
+*.pt
+*.pth
+*.onnx
+
+# sample images (may contain de-identified clinical imagery — user-provided)
+static/samples/*.png
+static/samples/*.jpg
+!static/samples/.gitkeep
+
+# runtime artifacts
+static/uploads/*
+!static/uploads/.gitkeep
+/tmp/
+
+# screenshots / evaluation artifacts
+screenshots/
+screenshots_iter*/
+demo_*.png
+eval_iter*.md
+make_screenshots.py
+
+# editor / OS
+.vscode/
+.idea/
+.DS_Store
+
+# misc
+.omc/
+*.log
