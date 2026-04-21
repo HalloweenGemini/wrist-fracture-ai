@@ -14,7 +14,7 @@
   --warn: #f59e0b;
   --danger: #e06b6b;
   --radius: 6px;
-  --shadow: 0 10px 30px rgba(0,0,0,0.35);
+  --shadow: 0 2px 8px rgba(0,0,0,0.25);
 
   --font-display: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-body:    "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
@@ -36,8 +36,7 @@ h1, h2, h3, p { margin: 0; }
   display: flex; align-items: center; justify-content: space-between;
   padding: 18px 28px;
   border-bottom: 1px solid var(--border);
-  background: rgba(10, 15, 22, 0.6);
-  backdrop-filter: blur(8px);
+  background: var(--bg);
   position: sticky; top: 0; z-index: 10;
 }
 .brand { display: flex; gap: 14px; align-items: center; }
@@ -95,7 +94,7 @@ h1, h2, h3, p { margin: 0; }
 .btn {
   display: inline-flex; align-items: center; gap: 6px;
   padding: 8px 12px;
-  border-radius: 10px;
+  border-radius: 4px;
   background: linear-gradient(180deg, #2a3649, #1d2637);
   border: 1px solid var(--border);
   color: var(--text);
@@ -245,7 +244,7 @@ kbd {
   background: var(--panel-2);
   border: 1px solid var(--border);
   border-left: 4px solid var(--border);
-  border-radius: 12px;
+  border-radius: 6px;
   padding: 12px 14px;
 }
 .card-head {
@@ -260,7 +259,6 @@ kbd {
 }
 .badge-dot {
   width: 10px; height: 10px; border-radius: 50%;
-  box-shadow: 0 0 10px currentColor;
 }
 .card-meta {
   font-size: 12px; color: var(--muted);
@@ -315,14 +313,14 @@ kbd {
 .no-det {
   background: var(--panel-2);
   border: 1px dashed var(--border);
-  border-radius: 12px;
+  border-radius: 6px;
   padding: 18px;
   text-align: center;
   color: var(--muted);
 }
 
 /* =============================================================
-   EDITORIAL PREDICTIONS CARD — twin-gauge layout
+   PREDICTIONS CARD — twin-gauge layout
    det_conf  ×  class_conf  surfaced as equal citizens
    ============================================================= */
 
@@ -479,7 +477,7 @@ kbd {
 }
 .pct {
   font-family: var(--font-display);
-  font-weight: 400;
+  font-weight: 300;
   font-size: 18px;
   color: var(--muted);
   margin-left: 3px;
@@ -498,8 +496,8 @@ kbd {
       to right,
       transparent 0,
       transparent calc(10% - 1px),
-      rgba(255,255,255,0.06) calc(10% - 1px),
-      rgba(255,255,255,0.06) 10%
+      rgba(255,255,255,0.09) calc(10% - 1px),
+      rgba(255,255,255,0.09) 10%
     );
 }
 .gauge-fill {
@@ -535,13 +533,6 @@ kbd {
 .meta-row::before {
   content: "";
   flex: 1;
-  height: 1em;
-  margin: 0 10px;
-  background-image: radial-gradient(circle, var(--border) 0.8px, transparent 1.2px);
-  background-size: 5px 5px;
-  background-repeat: repeat-x;
-  background-position: 0 center;
-  opacity: 0.7;
 }
 .meta-row dd {
   margin: 0;
