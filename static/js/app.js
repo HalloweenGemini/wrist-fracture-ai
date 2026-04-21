@@ -88,22 +88,28 @@
       ctx.strokeRect(X, Y, W, H);
       ctx.shadowBlur = 0;
 
-      // Label background
-      const label = `#${i + 1}  ${d.class_name.toUpperCase()} ${(d.class_conf * 100).toFixed(0)}%`;
-      const pad = 5;
+      // Two-row label: #01  fx 5% · simple 100%
+      const idx = String(i + 1).padStart(2, "0");
+      const label = `Nº${idx}  fx ${(d.det_conf * 100).toFixed(0)}% · ${d.class_name} ${(d.class_conf * 100).toFixed(0)}%`;
+      const pad = 6;
       const metrics = ctx.measureText(label);
       const lbW = metrics.width + pad * 2;
       const lbH = 20;
       const lx = X;
       const ly = Math.max(0, Y - lbH - 2);
-      // subtle dark border around label for contrast
-      ctx.fillStyle = "rgba(0,0,0,0.55)";
+      ctx.fillStyle = "rgba(0,0,0,0.6)";
       ctx.fillRect(lx - 1, ly - 1, lbW + 2, lbH + 2);
       ctx.fillStyle = d.class_color;
       ctx.fillRect(lx, ly, lbW, lbH);
-      ctx.fillStyle = "#0b0f14";
+      ctx.fillStyle = "#0a0d12";
       ctx.fillText(label, lx + pad, ly + 3);
     });
+  };
+
+  const TIER = (det) => {
+    if (det < 0.25) return { key: "low",  label: "low confidence" };
+    if (det < 0.50) return { key: "mid",  label: "moderate" };
+    return                { key: "high", label: "high confidence" };
   };
 
   const renderResults = (data) => {
@@ -119,40 +125,79 @@
     const tmpl = document.getElementById("detection-card-template");
     data.detections.forEach((det, i) => {
       const node = tmpl.content.cloneNode(true);
-      const card = node.querySelector(".card");
-      card.style.borderLeftColor = det.class_color;
+      const card = node.querySelector('[data-role="card"]');
+      card.style.animationDelay = (i * 60) + "ms";
 
-      const badgeDot = node.querySelector('[data-role="badge-dot"]');
-      badgeDot.style.color = det.class_color;
-      badgeDot.style.background = det.class_color;
+      const idx = String(i + 1).padStart(2, "0");
+      node.querySelector('[data-role="idx"]').textContent = idx;
 
-      node.querySelector('[data-role="badge-name"]').textContent = det.class_name;
-      node.querySelector('[data-role="idx"]').textContent = `#${i + 1}`;
-      node.querySelector('[data-role="det-conf"]').textContent = (det.det_conf * 100).toFixed(1) + "%";
+      const tier = TIER(det.det_conf);
+      const tierEl = node.querySelector('[data-role="tier"]');
+      tierEl.textContent = tier.label;
+      tierEl.classList.add(tier.key);
 
-      const barRow = node.querySelector('[data-role="bar-row"]');
-      // probabilities in fixed order
-      ["occult", "simple", "comminuted"].forEach((name) => {
-        const p = det.probs[name] || 0;
-        const color = name === "occult" ? "#F5B700" :
-                      name === "simple" ? "#FF6B35" : "#D62828";
-        const row = document.createElement("div");
-        row.className = "bar" + (name === det.class_name ? " predicted" : "");
-        row.style.color = color;
-        row.innerHTML = `
-          <div class="bar-label">${name}</div>
-          <div class="bar-track"><div class="bar-fill" style="width:${(p * 100).toFixed(1)}%"></div></div>
-          <div class="bar-val">${(p * 100).toFixed(1)}%</div>
-        `;
-        barRow.appendChild(row);
-      });
+      const detNumEl = node.querySelector('[data-role="det-num"]');
+      const typeNumEl = node.querySelector('[data-role="type-num"]');
+      const typeNameEl = node.querySelector('[data-role="type-name"]');
+
+      const detPct  = +(det.det_conf  * 100).toFixed(1);
+      const typePct = +(det.class_conf * 100).toFixed(1);
+
+      detNumEl.textContent  = detPct.toFixed(1);
+      typeNumEl.textContent = typePct.toFixed(1);
+      typeNameEl.textContent = det.class_name;
+
+      const typeSection = node.querySelector('[data-role="type-section"]');
+      typeSection.style.setProperty("--gauge-color", det.class_color);
+      typeSection.style.setProperty("--fill-color",  det.class_color);
+
+      // Joint prob (det × class)
+      const joint = (det.det_conf * det.class_conf * 100).toFixed(2);
+      node.querySelector('[data-role="joint"]').textContent = joint + "%";
 
       const [x1, y1, x2, y2] = det.bbox;
       node.querySelector('[data-role="bbox"]').textContent =
-        `bbox  [${x1}, ${y1}] → [${x2}, ${y2}]  (${x2 - x1}×${y2 - y1})`;
+        `${x1}, ${y1} → ${x2}, ${y2}  (${x2 - x1}×${y2 - y1})`;
+
+      // Per-class breakdown
+      const bd = node.querySelector('[data-role="breakdown"]');
+      [["occult","#F5B700"], ["simple","#FF6B35"], ["comminuted","#D62828"]].forEach(([name, color]) => {
+        const p = det.probs[name] || 0;
+        const row = document.createElement("div");
+        row.className = "bd-row" + (name === det.class_name ? " is-predicted" : "");
+        row.style.setProperty("--c", color);
+        row.innerHTML = `
+          <span class="bd-marker"></span>
+          <span class="bd-label">${name}</span>
+          <span class="bd-track"><span class="bd-fill"></span></span>
+          <span class="bd-val">${(p * 100).toFixed(1)}%</span>
+        `;
+        bd.appendChild(row);
+      });
 
       els.results.appendChild(node);
+
+      // Animate the fills on the next tick so the transitions trigger
+      requestAnimationFrame(() => {
+        node.parentNode && null;  // no-op; node was appended, re-query
+      });
     });
+
+    // Kick off width transitions after DOM insertion (double-RAF ensures paint)
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      els.results.querySelectorAll('[data-role="det-fill"]').forEach((el, i) => {
+        const d = data.detections[i];
+        el.style.width = Math.min(100, d.det_conf * 100) + "%";
+      });
+      els.results.querySelectorAll('[data-role="type-fill"]').forEach((el, i) => {
+        const d = data.detections[i];
+        el.style.width = Math.min(100, d.class_conf * 100) + "%";
+      });
+      els.results.querySelectorAll(".bd-row").forEach((row) => {
+        const val = parseFloat(row.querySelector(".bd-val").textContent);
+        row.querySelector(".bd-fill").style.width = val + "%";
+      });
+    }));
   };
 
   const processFile = async (blob) => {

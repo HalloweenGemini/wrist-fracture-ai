@@ -4,6 +4,11 @@
   <meta charset="utf-8" />
   <title>Wrist Fracture AI – Detection & Classification</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preconnect" href="https://api.fontshare.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..900,0..100,0..1&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://api.fontshare.com/v2/css?f%5B%5D=general-sans@400,500,600,700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
 </head>
 <body>
@@ -79,23 +84,57 @@
 </main>
 
 <template id="detection-card-template">
-  <div class="card">
-    <div class="card-head">
-      <div class="badge" data-role="badge">
-        <span class="badge-dot" data-role="badge-dot"></span>
-        <span data-role="badge-name"></span>
+  <article class="fxcard" data-role="card">
+    <header class="fxcard-head">
+      <div class="fxcard-num">
+        <span class="n">N<sup>o</sup></span><span data-role="idx"></span>
       </div>
-      <div class="card-meta">
-        <span data-role="idx"></span>
-        <span class="sep">·</span>
-        <span>det <span data-role="det-conf"></span></span>
+      <span class="tier" data-role="tier"></span>
+    </header>
+
+    <div class="gauges">
+      <section class="gauge gauge-det">
+        <div class="gauge-label">
+          <span>Fracture</span>
+          <em>likelihood · p(fx)</em>
+        </div>
+        <div class="gauge-value">
+          <span class="num" data-role="det-num">0.0</span><span class="pct">%</span>
+        </div>
+        <div class="gauge-track"><span class="gauge-fill" data-role="det-fill"></span></div>
+      </section>
+
+      <div class="gauge-op" aria-hidden="true">×</div>
+
+      <section class="gauge gauge-type" data-role="type-section">
+        <div class="gauge-label">
+          <span data-role="type-name">—</span>
+          <em>type · p(t | fx)</em>
+        </div>
+        <div class="gauge-value">
+          <span class="num" data-role="type-num">0.0</span><span class="pct">%</span>
+        </div>
+        <div class="gauge-track"><span class="gauge-fill" data-role="type-fill"></span></div>
+      </section>
+    </div>
+
+    <dl class="meta-list">
+      <div class="meta-row">
+        <dt>Joint probability</dt>
+        <dd data-role="joint" class="mono"></dd>
       </div>
-    </div>
-    <div class="card-body">
-      <div class="bar-row" data-role="bar-row"></div>
-      <div class="bbox muted" data-role="bbox"></div>
-    </div>
-  </div>
+      <div class="meta-row">
+        <dt>Operating point</dt>
+        <dd class="mono">det ≥ 0.25</dd>
+      </div>
+      <div class="meta-row">
+        <dt>Bbox</dt>
+        <dd data-role="bbox" class="mono"></dd>
+      </div>
+    </dl>
+
+    <div class="breakdown" data-role="breakdown"></div>
+  </article>
 </template>
 
 <script src="{{ url_for('static', filename='js/app.js') }}"></script>
